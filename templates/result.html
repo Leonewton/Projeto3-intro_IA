@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quem é esse pokémon?</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+    <div class="container-result">
+
+        <!-- Coluna Esquerda: Gênio Vitorioso -->
+        <div class="result-genie-area">
+            <img src="{{ url_for('static', filename='img/genio_tela_respostas.png') }}" class="genio-win"
+                alt="Gênio Vitória">
+        </div>
+
+        <!-- Coluna Direita: Card do Pokémon -->
+        <div class="result-card-area">
+            <div class="pokemon-card" id="card-result">
+                <div class="result-title">Eu acho que você pensou em...</div>
+
+                <!-- Imagem Dinâmica -->
+                <img src="https://img.pokemondb.net/sprites/home/normal/{{ pokemon|lower|replace(' ', '-')|replace('.', '')|replace('♀', '-f')|replace('♂', '-m') }}.png"
+                    class="pokemon-img" alt="{{ pokemon }}"
+                    onerror="this.onerror=null; this.src='https://img.pokemondb.net/sprites/home/normal/bulbasaur.png';">
+
+                <div class="pokemon-reveal">{{ pokemon }}</div>
+
+                <!-- Área de Verificação (Novo) -->
+                <div id="verify-section">
+                    <p>Acertei?</p>
+                    <button class="btn-option" style="background:#4CAF50; display:inline-block; width:auto;"
+                        onclick="confirmResult(true)">Sim</button>
+                    <button class="btn-option" style="background:#f44336; display:inline-block; width:auto;"
+                        onclick="showCorrection()">Não</button>
+                </div>
+
+                <!-- Área de Correção (Escondida) -->
+                <div id="correction-section" style="display:none; margin-top:1rem;">
+                    <p>Poxa! Quem era então?</p>
+                    <select id="real-pokemon" style="width:100%; padding:10px; border-radius:10px; margin-bottom:10px;">
+                        {% for p in todos_pokemons %}
+                        <option value="{{ p }}">{{ p }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn-start" style="font-size:1rem; padding:0.5rem 2rem;"
+                        onclick="confirmResult(false)">Enviar e Aprender</button>
+                </div>
+
+                <div id="final-actions" style="display:none; margin-top:1rem;">
+                    <a href="/" class="btn-start" style="font-size: 1.2rem; padding: 1rem 3rem;">Jogar Novamente</a>
+                </div>
+            </div>
+
+            <script>
+                async function confirmResult(isCorrect) {
+                    let realName = "{{ pokemon }}";
+
+                    if (!isCorrect) {
+                        realName = document.getElementById('real-pokemon').value;
+                    }
+
+                    // Envia Feedback
+                    try {
+                        await fetch('/api/feedback', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                pokemon_real: realName,
+                                acertou: isCorrect
+                            })
+                        });
+                    } catch (e) { console.error(e); }
+
+                    // UI Updates
+                    if (isCorrect) {
+                        document.getElementById('verify-section').style.display = 'none';
+                        document.getElementById('final-actions').style.display = 'block';
+                        // Efeito de confetis (opcional, imaginário aqui)
+                    } else {
+                        document.getElementById('correction-section').style.display = 'none';
+                        document.getElementById('final-actions').style.display = 'block';
+                        document.querySelector('.result-title').innerText = "Vou anotar para a próxima!";
+                        document.querySelector('.pokemon-reveal').innerText = realName;
+                        // Atualiza imagem se possível, mas ok manter a antiga
+                    }
+                }
+
+                function showCorrection() {
+                    document.getElementById('verify-section').style.display = 'none';
+                    document.getElementById('correction-section').style.display = 'block';
+                }
+            </script>
+        </div>
+
+    </div>
+</body>
+
+</html>

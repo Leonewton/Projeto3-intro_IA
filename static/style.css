@@ -1,0 +1,512 @@
+/* Reset & Global */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* Background Imersivo Sólido: Cor da Imagem do Gênio */
+    background-color: #172435;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    /* Evita scrollbars indesejadas */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tipografia */
+h1 {
+    font-size: 3rem;
+    color: #ffcb05;
+    /* Amarelo Pokémon */
+    text-shadow: 3px 3px 0 #2a3b9e;
+    /* Sombra Azul */
+    margin-bottom: 0.5rem;
+}
+
+/* --- TELA INICIAL (Index/Hero) --- */
+.container-index {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    /* Garante altura total */
+    width: 100%;
+    text-align: center;
+    padding: 2rem;
+    overflow: hidden;
+    /* Evita scrollbars */
+}
+
+.game-title {
+    font-size: 3rem;
+    /* Levemente menor para caber */
+    font-weight: 900;
+    color: #ffcb05;
+    text-shadow:
+        3px 3px 0 #2a5298,
+        -1px -1px 0 #2a5298,
+        1px -1px 0 #2a5298,
+        -1px 1px 0 #2a5298,
+        1px 1px 0 #2a5298;
+    margin-bottom: 1rem;
+    /* Espaço para o gênio */
+    z-index: 2;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    /* Não deixa o título amassar */
+}
+
+.hero-genie-img {
+    max-height: 45vh;
+    /* Restrição de altura solicitada */
+    width: auto;
+    /* Mantém proporção */
+    object-fit: contain;
+    margin: 1rem 0;
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+    z-index: 1;
+    transition: transform 0.5s ease;
+    flex-shrink: 1;
+    /* Permite encolher se a tela for muito pequena */
+}
+
+.hero-genie-img:hover {
+    transform: scale(1.02);
+}
+
+.intro-text {
+    font-size: 1.2rem;
+    background: white;
+    color: #333;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    margin-bottom: 1.5rem;
+    max-width: 90%;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+/* Triângulo do balão inicial */
+.intro-text::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 10px 10px 10px;
+    border-color: transparent transparent white transparent;
+}
+
+.btn-start {
+    background: linear-gradient(135deg, #ffcb05 0%, #ffac05 100%);
+    color: #2a3b9e;
+    font-weight: bold;
+    border: none;
+    padding: 1rem 3rem;
+    font-size: 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 1rem;
+    flex-shrink: 0;
+}
+
+.btn-start:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* --- TELA DE JOGO (Game) --- */
+.game-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* Coluna da Esquerda: Gênio */
+.genio-area {
+    flex: 1;
+    /* Ocupa espaço */
+    display: flex;
+    align-items: flex-end;
+    /* Alinha na base */
+    justify-content: center;
+    /* Centraliza horizontalmente na área dele */
+    position: relative;
+    padding-bottom: 2rem;
+    /* Espaço da borda inferior */
+}
+
+.genio-animado {
+    height: 60vh;
+    /* 60% da altura da tela (Grande!) */
+    max-height: 600px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+    transition: opacity 0.5s ease-in-out;
+}
+
+.hidden {
+    display: none;
+    /* Diferente do opacity para layout, mas aqui usaremos display none para troca */
+}
+
+/* Se usar opacity transition, precisa de position absolute. 
+   Vamos manter simples: JS troca display ou src. 
+   Mas o user pediu "fiquem alternando", vamos usar duas imgs sobrepostas se quiser fade.
+   Vou simplificar para uma div wrapper relativa. */
+
+.genio-wrapper {
+    position: relative;
+    height: 60vh;
+    width: auto;
+    aspect-ratio: 1/1;
+    /* Tenta manter quadrado se possível */
+}
+
+.genio-wrapper img {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    width: auto;
+}
+
+/* Coluna da Direita: Interação */
+.interaction-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    /* Alinha tudo à esquerda (perto do gênio) */
+    padding-right: 5%;
+    max-width: 600px;
+}
+
+/* Balão de Fala */
+.speech-bubble {
+    background: white;
+    color: #333;
+    padding: 2rem;
+    border-radius: 30px;
+    border-bottom-left-radius: 0;
+    /* Ponta do balão */
+    position: relative;
+    margin-bottom: 2rem;
+    font-size: 1.4rem;
+    line-height: 1.4;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    /* Triângulo apontando para esquerda/baixo (gênio) */
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    border-width: 20px 20px 0 0;
+    border-style: solid;
+    border-color: white transparent transparent transparent;
+}
+
+.question-counter {
+    position: absolute;
+    top: -15px;
+    right: 20px;
+    background: #ffcb05;
+    color: #2a3b9e;
+    font-weight: bold;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Caixa de Respostas */
+.answers-box {
+    background: rgba(255, 255, 255, 0.9);
+    /* Branco Translúcido */
+    padding: 2rem;
+    border-radius: 20px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Espaço entre botões */
+}
+
+.btn-option {
+    background: #3b4cca;
+    /* Azul Base */
+    color: white;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-option:hover {
+    background: #ffcb05;
+    /* Amarelo no Hover */
+    color: #2a3b9e;
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Loader */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    display: none;
+    /* JS toggles this */
+    border-radius: 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #fff;
+    border-top: 4px solid #ffcb05;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- TELA DE RESULTADO (Result) --- */
+.container-result {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Coluna Esquerda: Gênio da Vitória */
+.result-genie-area {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 100%;
+    padding-bottom: 2rem;
+}
+
+.genio-win {
+    height: 65vh;
+    /* Bem grande */
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 25px rgba(255, 203, 5, 0.6));
+    animation: slideUp 0.8s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Coluna Direita: Card do Pokémon */
+.result-card-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* Alinha card à esquerda da área dele */
+    justify-content: center;
+    padding-right: 5%;
+}
+
+.pokemon-card {
+    background: rgba(255, 255, 255, 0.95);
+    /* Quase opaco */
+    padding: 2.5rem;
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    animation: fadeInCard 1s ease-out 0.3s backwards;
+    /* Delay pequeno */
+    border: 2px solid rgba(255, 203, 5, 0.5);
+}
+
+@keyframes fadeInCard {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.result-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.pokemon-img {
+    height: 250px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s;
+}
+
+.pokemon-img:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.pokemon-reveal {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #ffcb05;
+    text-transform: uppercase;
+    text-shadow:
+        3px 3px 0 #2a3b9e,
+        -1px -1px 0 #2a3b9e,
+        1px -1px 0 #2a3b9e,
+        -1px 1px 0 #2a3b9e,
+        1px 1px 0 #2a3b9e;
+    margin: 1rem 0;
+    line-height: 1.1;
+}
+
+/* Responsividade Result */
+@media (max-width: 768px) {
+    .container-result {
+        flex-direction: column;
+    }
+
+    .result-genie-area {
+        height: 35%;
+        /* Gênio menor no topo */
+        padding-bottom: 0;
+        align-items: flex-end;
+    }
+
+    .genio-win {
+        height: 90%;
+    }
+
+    .result-card-area {
+        height: 65%;
+        justify-content: flex-start;
+        padding: 1rem;
+        width: 100%;
+        align-items: center;
+    }
+
+    .pokemon-card {
+        padding: 1.5rem;
+    }
+
+    .pokemon-img {
+        height: 150px;
+    }
+
+    .pokemon-reveal {
+        font-size: 2.5rem;
+    }
+}
+
+/* --- DEBUG PANEL (Verbose Mode) --- */
+.debug-toggle {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    z-index: 100;
+}
+
+.debug-panel {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #0f0;
+    /* Matrix style green */
+    padding: 15px;
+    border-radius: 10px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.9rem;
+    z-index: 99;
+    max-height: 80vh;
+    overflow-y: auto;
+    display: none;
+    /* Hidden by default */
+    width: 250px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.debug-panel h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    border-bottom: 1px solid #0f0;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.candidate-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3px;
+}

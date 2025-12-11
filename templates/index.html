@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quem é esse pokémon?</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+    <div class="container-index">
+
+        <img src="{{ url_for('static', filename='img/genio_tela_inicial.png') }}" alt="Gênio Akinator"
+            class="hero-genie-img">
+
+        <div class="intro-text">
+            Pense em um Pokémon e eu adivinharei quem é!
+        </div>
+
+        <a href="/game" class="btn-start">Começar</a>
+    </div>
+</body>
+
+</html>

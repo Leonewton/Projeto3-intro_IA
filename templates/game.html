@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quem é esse pokémon?</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+
+    <div class="game-container">
+        <!-- Coluna Esquerda: Gênio -->
+        <div class="genio-area">
+            <div class="genio-wrapper">
+                <img src="{{ url_for('static', filename='img/genio_tela_perguntas1.png') }}" id="genio1">
+                <img src="{{ url_for('static', filename='img/genio_tela_perguntas2.png') }}" id="genio2" class="hidden">
+            </div>
+        </div>
+
+        <!-- Coluna Direita: Interação -->
+        <div class="interaction-area">
+            <!-- Balão de Fala -->
+            <div class="speech-bubble">
+                <div class="question-counter">Pergunta <span id="q-num">1</span></div>
+                <span id="question-text">Carregando pergunta...</span>
+            </div>
+
+            <!-- Botões de Resposta -->
+            <div class="answers-box" id="answers-container">
+                <div class="loading-overlay" id="loading">
+                    <div class="spinner"></div>
+                </div>
+
+                <button class="btn-option" onclick="sendAnswer('s')">Sim</button>
+                <button class="btn-option" onclick="sendAnswer('n')">Não</button>
+                <button class="btn-option" onclick="sendAnswer('i')">Não sei</button>
+                <button class="btn-option" onclick="sendAnswer('p')">Provavelmente</button>
+                <button class="btn-option" onclick="sendAnswer('pn')">Provavelmente não</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Panel (Verbose Mode) -->
+    <button class="debug-toggle" onclick="toggleDebug()">🐞 Debug / Verbose</button>
+    <div class="debug-panel" id="debug-box">
+        <h3>Top Candidatos</h3>
+        <div id="candidates-list">
+            <!-- Preenchido via JS -->
+        </div>
+    </div>
+
+    <script>
+        // Animação de Respiração (Alterna imagens)
+        setInterval(() => {
+            const g1 = document.getElementById('genio1');
+            const g2 = document.getElementById('genio2');
+            if (g1.classList.contains('hidden')) {
+                g1.classList.remove('hidden');
+                g2.classList.add('hidden');
+            } else {
+                g1.classList.add('hidden');
+                g2.classList.remove('hidden');
+            }
+        }, 3000);
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        async function loadNextQuestion() {
+            showLoading();
+            try {
+                const response = await fetch('/api/next_question', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.status === 'finished') {
+                    window.location.href = `/result?pokemon=${data.result}`;
+                } else if (data.status === 'give_up') {
+                    alert("Que difícil! O gênio desistiu.");
+                    window.location.href = "/";
+                } else {
+                    document.getElementById('question-text').innerText = data.question;
+                    document.getElementById('q-num').innerText = data.question_number;
+
+                    // Atualiza Debug Panel
+                    if (data.candidates) {
+                        const list = document.getElementById('candidates-list');
+                        list.innerHTML = '';
+                        data.candidates.forEach((c, index) => {
+                            list.innerHTML += `
+                                <div class="candidate-row">
+                                    <span>${index + 1}. ${c.nome}</span>
+                                    <span>${c.prob}%</span>
+                                </div>`;
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Erro:", err);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function toggleDebug() {
+            const panel = document.getElementById('debug-box');
+            panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+        }
+
+        async function sendAnswer(answerCode) {
+            showLoading();
+            try {
+                await fetch('/api/answer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ answer: answerCode })
+                });
+                await loadNextQuestion();
+            } catch (err) {
+                console.error("Erro no envio:", err);
+                hideLoading();
+            }
+        }
+
+        window.onload = loadNextQuestion;
+    </script>
+</body>
+
+</html>
